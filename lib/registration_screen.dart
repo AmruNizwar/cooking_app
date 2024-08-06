@@ -1,7 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class RegistrationScreen extends StatelessWidget {
-  const RegistrationScreen({Key? key});
+  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController confirmPasswordController = TextEditingController();
+  final TextEditingController phoneNumberController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -42,6 +47,7 @@ class RegistrationScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 20),
                       TextField(
+                        controller: usernameController,
                         decoration: InputDecoration(
                           prefixIcon: const Icon(Icons.person),
                           hintText: 'Username',
@@ -54,6 +60,7 @@ class RegistrationScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 20),
                       TextField(
+                        controller: passwordController,
                         obscureText: true,
                         decoration: InputDecoration(
                           prefixIcon: const Icon(Icons.lock),
@@ -67,6 +74,7 @@ class RegistrationScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 20),
                       TextField(
+                        controller: confirmPasswordController,
                         obscureText: true,
                         decoration: InputDecoration(
                           prefixIcon: const Icon(Icons.lock),
@@ -80,6 +88,7 @@ class RegistrationScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 20),
                       TextField(
+                        controller: phoneNumberController,
                         decoration: InputDecoration(
                           prefixIcon: const Icon(Icons.phone),
                           hintText: 'Phone Number',
@@ -92,12 +101,103 @@ class RegistrationScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 20),
                       ElevatedButton(
-                        onPressed: () {
-                          Navigator.pushNamed(context, '/home');
+                        onPressed: () async {
+                          final username = usernameController.text;
+                          final password = passwordController.text;
+                          final confirmPassword = confirmPasswordController.text;
+                          final phoneNumber = phoneNumberController.text;
+
+                          // Basic email format validation
+                          final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+$');
+
+                          if (password.length < 6) {
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: Text('Error'),
+                                content: Text('Password must be at least 6 characters long.'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: Text('OK'),
+                                  ),
+                                ],
+                              ),
+                            );
+                          } else if (!emailRegex.hasMatch(username)) {
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: Text('Error'),
+                                content: Text('Please enter a valid email address.'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: Text('OK'),
+                                  ),
+                                ],
+                              ),
+                            );
+                          } else if (password != confirmPassword) {
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: Text('Error'),
+                                content: Text('Passwords do not match.'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: Text('OK'),
+                                  ),
+                                ],
+                              ),
+                            );
+                          } else {
+                            try {
+                              UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+                                email: username,
+                                password: password,
+                              );
+                              await FirebaseFirestore.instance.collection('users').doc(userCredential.user?.uid).set({
+                                'username': username,
+                                'phoneNumber': phoneNumber,
+                              });
+
+                              showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  title: Text('Success'),
+                                  content: Text('Registration successful!'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                        Navigator.pushNamed(context, '/home');
+                                      },
+                                      child: Text('OK'),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            } catch (e) {
+                              showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  title: Text('Error'),
+                                  content: Text('Failed to register: $e'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.pop(context),
+                                      child: Text('OK'),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }
+                          }
                         },
                         style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 100, vertical: 15),
+                          padding: const EdgeInsets.symmetric(horizontal: 100, vertical: 15),
                           textStyle: const TextStyle(fontSize: 18),
                         ),
                         child: const Text('Register'),

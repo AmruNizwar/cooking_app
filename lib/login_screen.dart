@@ -1,10 +1,15 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final TextEditingController usernameController = TextEditingController();
+    final TextEditingController passwordController = TextEditingController();
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: Column(
@@ -42,6 +47,7 @@ class LoginScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 20),
                       TextField(
+                        controller: usernameController,
                         decoration: InputDecoration(
                           prefixIcon: const Icon(Icons.person),
                           hintText: 'Username',
@@ -54,6 +60,7 @@ class LoginScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 20),
                       TextField(
+                        controller: passwordController,
                         obscureText: true,
                         decoration: InputDecoration(
                           prefixIcon: const Icon(Icons.lock),
@@ -67,8 +74,53 @@ class LoginScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 20),
                       ElevatedButton(
-                        onPressed: () {
-                          Navigator.pushNamed(context, '/home');
+                        onPressed: () async {
+                          final username = usernameController.text.trim();
+                          final password = passwordController.text.trim();
+
+                          try {
+                            // Sign in with email and password
+                            UserCredential userCredential = await FirebaseAuth
+                                .instance
+                                .signInWithEmailAndPassword(
+                              email: username,
+                              password: password,
+                            );
+
+                            // Check if user exists in Firestore (optional)
+                            DocumentSnapshot userDoc = await FirebaseFirestore
+                                .instance
+                                .collection('users')
+                                .doc(userCredential.user?.uid)
+                                .get();
+                            if (userDoc.exists) {
+                              // Navigate to the home screen
+                              Navigator.pushNamed(context, '/home');
+                            } else {
+                              print('User data not found in Firestore');
+                              // Optionally, handle case where user data isn't found
+                            }
+                          } catch (e) {
+                            // Handle errors, e.g., user not found, wrong password
+                            print('Error: $e');
+                            // Show an error message to the user (optional)
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                title: Text('Error'),
+                                content: Text(
+                                    'Failed to login. Please check your credentials and try again.'),
+                                actions: <Widget>[
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: Text('OK'),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }
                         },
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(

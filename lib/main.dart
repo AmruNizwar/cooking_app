@@ -1,17 +1,16 @@
-import 'package:cooking_app/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';  // Ensure you have this file generated
 import 'package:flutter/material.dart';
-import 'profile_screen.dart';
-import 'home_screen.dart';
 import 'login_screen.dart';
 import 'registration_screen.dart';
+import 'home_screen.dart';
+import 'profile_screen.dart';
 import 'chat_screen.dart';
 import 'history_screen.dart';
 import 'about_screen.dart';
 
-Future<void> main() async {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
@@ -19,8 +18,6 @@ Future<void> main() async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -39,44 +36,6 @@ class MyApp extends StatelessWidget {
         '/history': (context) => HistoryScreen(),
         '/about': (context) => AboutScreen(),
       },
-      onGenerateRoute: (settings) {
-        switch (settings.name) {
-          case '/login':
-            return MaterialPageRoute(builder: (context) => LoginScreen());
-          case '/registration':
-            return MaterialPageRoute(
-                builder: (context) => RegistrationScreen());
-          case '/home':
-            return MaterialPageRoute(builder: (context) => HomeScreen());
-          case '/profile':
-            return MaterialPageRoute(builder: (context) => ProfileScreen());
-          case '/chat':
-            return MaterialPageRoute(builder: (context) => ChatScreen());
-          case '/history':
-            return MaterialPageRoute(builder: (context) => HistoryScreen());
-          case '/about':
-            return MaterialPageRoute(builder: (context) => AboutScreen());
-          default:
-            return MaterialPageRoute(builder: (context) => UnknownScreen());
-        }
-      },
-      onUnknownRoute: (settings) {
-        return MaterialPageRoute(builder: (context) => UnknownScreen());
-      },
-    );
-  }
-}
-
-class UnknownScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Page not found'),
-      ),
-      body: Center(
-        child: Text('404 - Page not found'),
-      ),
     );
   }
 }

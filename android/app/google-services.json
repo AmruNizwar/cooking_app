@@ -1,51 +1,13 @@
 {
   "project_info": {
-    "project_number": "396768825712",
-    "project_id": "cook-with-ai-fb389",
-    "storage_bucket": "cook-with-ai-fb389.appspot.com"
+    "project_number": "406809548170",
+    "project_id": "cooking-app-68f57",
+    "storage_bucket": "cooking-app-68f57.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:396768825712:android:80342e1ac27466dfaa7fb5",
-        "android_client_info": {
-          "package_name": "com.cookwithai.app"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyDH6CsN9m0Y88Dm7ZYIjp40jLOvRYExbOQ"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:396768825712:android:d243f45f2b4d0e82aa7fb5",
-        "android_client_info": {
-          "package_name": "com.example.cook_with_ai"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyDH6CsN9m0Y88Dm7ZYIjp40jLOvRYExbOQ"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:396768825712:android:635bcb362cf2514caa7fb5",
+        "mobilesdk_app_id": "1:406809548170:android:e760b82d881cd0edb9a473",
         "android_client_info": {
           "package_name": "com.example.cooking_app"
         }
@@ -53,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDH6CsN9m0Y88Dm7ZYIjp40jLOvRYExbOQ"
+          "current_key": "AIzaSyAirW6kOCsrizEqx9wTWGDAlWnOFfsCnWc"
         }
       ],
       "services": {

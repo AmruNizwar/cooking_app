@@ -41,49 +41,49 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyDfZIbkXaTTRIKhhQ2qClr2U-EKHqWuzh8',
-    appId: '1:396768825712:web:4e66708e69f0a124aa7fb5',
-    messagingSenderId: '396768825712',
-    projectId: 'cook-with-ai-fb389',
-    authDomain: 'cook-with-ai-fb389.firebaseapp.com',
-    storageBucket: 'cook-with-ai-fb389.appspot.com',
-    measurementId: 'G-YR6HC3PLFF',
+    apiKey: 'AIzaSyC0Bd_8BnBkES1LM1vn4YCKPFLau61Szt4',
+    appId: '1:406809548170:web:6fed44fcfe9314e1b9a473',
+    messagingSenderId: '406809548170',
+    projectId: 'cooking-app-68f57',
+    authDomain: 'cooking-app-68f57.firebaseapp.com',
+    storageBucket: 'cooking-app-68f57.appspot.com',
+    measurementId: 'G-LYEYBM135Y',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDH6CsN9m0Y88Dm7ZYIjp40jLOvRYExbOQ',
-    appId: '1:396768825712:android:635bcb362cf2514caa7fb5',
-    messagingSenderId: '396768825712',
-    projectId: 'cook-with-ai-fb389',
-    storageBucket: 'cook-with-ai-fb389.appspot.com',
+    apiKey: 'AIzaSyAirW6kOCsrizEqx9wTWGDAlWnOFfsCnWc',
+    appId: '1:406809548170:android:e760b82d881cd0edb9a473',
+    messagingSenderId: '406809548170',
+    projectId: 'cooking-app-68f57',
+    storageBucket: 'cooking-app-68f57.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyBZDhYxrfMbYU0kJ735AN402r-hB0_tW4w',
-    appId: '1:396768825712:ios:2a693324cf593800aa7fb5',
-    messagingSenderId: '396768825712',
-    projectId: 'cook-with-ai-fb389',
-    storageBucket: 'cook-with-ai-fb389.appspot.com',
+    apiKey: 'AIzaSyD7IXMB37o2Yab-FFoxJOhezIE36RaTiwI',
+    appId: '1:406809548170:ios:cfa9d21d6704189db9a473',
+    messagingSenderId: '406809548170',
+    projectId: 'cooking-app-68f57',
+    storageBucket: 'cooking-app-68f57.appspot.com',
     iosBundleId: 'com.example.cookingApp',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyBZDhYxrfMbYU0kJ735AN402r-hB0_tW4w',
-    appId: '1:396768825712:ios:2a693324cf593800aa7fb5',
-    messagingSenderId: '396768825712',
-    projectId: 'cook-with-ai-fb389',
-    storageBucket: 'cook-with-ai-fb389.appspot.com',
+    apiKey: 'AIzaSyD7IXMB37o2Yab-FFoxJOhezIE36RaTiwI',
+    appId: '1:406809548170:ios:cfa9d21d6704189db9a473',
+    messagingSenderId: '406809548170',
+    projectId: 'cooking-app-68f57',
+    storageBucket: 'cooking-app-68f57.appspot.com',
     iosBundleId: 'com.example.cookingApp',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyDfZIbkXaTTRIKhhQ2qClr2U-EKHqWuzh8',
-    appId: '1:396768825712:web:4e66708e69f0a124aa7fb5',
-    messagingSenderId: '396768825712',
-    projectId: 'cook-with-ai-fb389',
-    authDomain: 'cook-with-ai-fb389.firebaseapp.com',
-    storageBucket: 'cook-with-ai-fb389.appspot.com',
-    measurementId: 'G-YR6HC3PLFF',
+    apiKey: 'AIzaSyC0Bd_8BnBkES1LM1vn4YCKPFLau61Szt4',
+    appId: '1:406809548170:web:80067a5318222330b9a473',
+    messagingSenderId: '406809548170',
+    projectId: 'cooking-app-68f57',
+    authDomain: 'cooking-app-68f57.firebaseapp.com',
+    storageBucket: 'cooking-app-68f57.appspot.com',
+    measurementId: 'G-L6QB96RSQ4',
   );
 
 }
