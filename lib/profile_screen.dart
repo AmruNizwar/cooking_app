@@ -1,6 +1,42 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
+  @override
+  _ProfileScreenState createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  User? user;
+  String? email;
+  String? phoneNumber;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  void _loadUserData() async {
+    user = _auth.currentUser;
+    if (user != null) {
+      final userData = await _firestore.collection('users').doc(user!.uid).get();
+      setState(() {
+        email = user!.email;
+        phoneNumber = userData['phoneNumber'];
+      });
+    }
+  }
+
+  void _logout() async {
+    await _auth.signOut();
+    Navigator.pushReplacementNamed(context, '/login');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,7 +74,7 @@ class ProfileScreen extends StatelessWidget {
                     children: <Widget>[
                       Center(
                         child: Text(
-                          'Amru Nizwar',
+                          user?.displayName ?? 'User',
                           style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
@@ -81,9 +117,7 @@ class ProfileScreen extends StatelessWidget {
                 ),
               ],
             ),
-            SizedBox(
-                height:
-                    40), // This ensures the button is positioned below the avatar
+            SizedBox(height: 40), // This ensures the button is positioned below the avatar
             TextButton(
               onPressed: () {
                 // Handle profile image change
@@ -101,31 +135,34 @@ class ProfileScreen extends StatelessWidget {
                   TextField(
                     decoration: InputDecoration(
                       prefixIcon: Icon(Icons.person),
-                      hintText: 'Username',
+                      hintText: user?.displayName ?? 'Username',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.0),
                       ),
                     ),
+                    readOnly: true,
                   ),
                   SizedBox(height: 10),
                   TextField(
                     decoration: InputDecoration(
                       prefixIcon: Icon(Icons.phone),
-                      hintText: 'Phone Number',
+                      hintText: phoneNumber ?? 'Phone Number',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.0),
                       ),
                     ),
+                    readOnly: true,
                   ),
                   SizedBox(height: 10),
                   TextField(
                     decoration: InputDecoration(
                       prefixIcon: Icon(Icons.email),
-                      hintText: 'Email',
+                      hintText: email ?? 'Email',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.0),
                       ),
                     ),
+                    readOnly: true,
                   ),
                   SizedBox(height: 10),
                   TextField(
@@ -137,12 +174,11 @@ class ProfileScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(8.0),
                       ),
                     ),
+                    readOnly: true,
                   ),
                   SizedBox(height: 30),
                   ElevatedButton(
-                    onPressed: () {
-                      // Handle profile edit
-                    },
+                    onPressed: _logout,
                     child: Text('Logout'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.orange[100],

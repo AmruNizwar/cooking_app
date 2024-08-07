@@ -18,8 +18,8 @@ class LoginScreen extends StatelessWidget {
           Container(
             color: Colors.white,
             child: Image.asset(
-              'assets/hi.jpg',
-              height: 250,
+              'assets/login.jpg',
+              height: 300,
             ),
           ),
           Expanded(
