@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class ChatScreen extends StatefulWidget {
   @override
@@ -9,17 +11,34 @@ class _ChatScreenState extends State<ChatScreen> {
   final List<Map<String, String>> _messages = [];
   final TextEditingController _controller = TextEditingController();
 
-  void _sendMessage(String message) {
+  Future<void> _sendMessage(String message) async {
     setState(() {
       _messages.add({'message': message, 'sender': 'user'});
       _controller.clear();
     });
 
-    // Simulating bot reply (replace with actual logic)
-    String reply = 'Bot: Hello! This is a bot response.';
-    setState(() {
-      _messages.add({'message': reply, 'sender': 'bot'});
-    });
+    // Send the message to the backend and get the response
+    final response = await http.post(
+      Uri.parse('http://localhost:5000/get_recipe'), // Use your server's URL
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        'query': message,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      final reply = data['response'];
+      setState(() {
+        _messages.add({'message': reply, 'sender': 'bot'});
+      });
+    } else {
+      setState(() {
+        _messages.add({'message': 'Failed to connect to the server.', 'sender': 'bot'});
+      });
+    }
   }
 
   @override
@@ -56,7 +75,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 children: _messages.map((msg) {
                   return _buildChatBubble(
                     context,
-                    msg['message'] ?? '', // Provide a default value
+                    msg['message'] ?? '',
                     msg['sender'] == 'bot',
                   );
                 }).toList(),

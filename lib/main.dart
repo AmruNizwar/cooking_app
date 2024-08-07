@@ -8,6 +8,8 @@ import 'profile_screen.dart';
 import 'chat_screen.dart';
 import 'history_screen.dart';
 import 'about_screen.dart';
+import 'success_screen.dart';  // Import the SuccessScreen
+//import 'splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,14 +29,16 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: {
-        '/': (context) => LoginScreen(),
-        '/login': (context) => LoginScreen(),
-        '/registration': (context) => RegistrationScreen(),
-        '/home': (context) => HomeScreen(),
-        '/profile': (context) => ProfileScreen(),
-        '/chat': (context) => ChatScreen(),
-        '/history': (context) => HistoryScreen(),
-        '/about': (context) => AboutScreen(),
+      //  '/': (context) => SplashScreen(),
+        '/': (context) => const LoginScreen(),
+        '/login': (context) => const LoginScreen(),
+        '/registration': (context) =>  RegistrationScreen(),
+        '/home': (context) =>  HomeScreen(),
+        '/profile': (context) =>  ProfileScreen(),
+        '/chat': (context) =>  ChatScreen(),
+        '/history': (context) =>  HistoryScreen(),
+        '/about': (context) =>  AboutScreen(),
+        '/success': (context) =>  SuccessScreen(),  // Add the SuccessScreen route
       },
     );
   }

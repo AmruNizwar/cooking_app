@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'success_screen.dart';  // Import the SuccessScreen
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -94,8 +95,8 @@ class LoginScreen extends StatelessWidget {
                                 .doc(userCredential.user?.uid)
                                 .get();
                             if (userDoc.exists) {
-                              // Navigate to the home screen
-                              Navigator.pushNamed(context, '/home');
+                              // Navigate to the success screen
+                              Navigator.pushNamed(context, '/success');
                             } else {
                               print('User data not found in Firestore');
                               // Optionally, handle case where user data isn't found
@@ -107,15 +108,15 @@ class LoginScreen extends StatelessWidget {
                             showDialog(
                               context: context,
                               builder: (context) => AlertDialog(
-                                title: Text('Error'),
-                                content: Text(
+                                title: const Text('Error'),
+                                content: const Text(
                                     'Failed to login. Please check your credentials and try again.'),
                                 actions: <Widget>[
                                   TextButton(
                                     onPressed: () {
                                       Navigator.of(context).pop();
                                     },
-                                    child: Text('OK'),
+                                    child: const Text('OK'),
                                   ),
                                 ],
                               ),
