@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'EditProfileScreen.dart'; // Import the new screen
 
 class ProfileScreen extends StatefulWidget {
   @override
@@ -14,6 +15,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   User? user;
   String? email;
   String? phoneNumber;
+  String? displayName;
 
   @override
   void initState() {
@@ -24,10 +26,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void _loadUserData() async {
     user = _auth.currentUser;
     if (user != null) {
-      final userData = await _firestore.collection('users').doc(user!.uid).get();
+      final userData =
+          await _firestore.collection('users').doc(user!.uid).get();
       setState(() {
         email = user!.email;
         phoneNumber = userData['phoneNumber'];
+        displayName = user!.displayName;
       });
     }
   }
@@ -74,7 +78,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     children: <Widget>[
                       Center(
                         child: Text(
-                          user?.displayName ?? 'User',
+                          displayName ?? 'User',
                           style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
@@ -102,8 +106,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           child: CircleAvatar(
                             radius: 50,
                             backgroundColor: Colors.transparent,
-                            backgroundImage: AssetImage(
-                                'assets/hi.jpg'), // Your profile image here
+                            // Your profile image here
                             child: Icon(
                               Icons.person_add,
                               size: 50,
@@ -117,10 +120,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ],
             ),
-            SizedBox(height: 40), // This ensures the button is positioned below the avatar
+            SizedBox(
+                height:
+                    40), // This ensures the button is positioned below the avatar
             TextButton(
               onPressed: () {
-                // Handle profile image change
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => EditProfileScreen(
+                            onProfileUpdated:
+                                _loadUserData, // Callback to refresh data
+                          )),
+                );
               },
               child: Text(
                 'Edit profile',
@@ -135,7 +147,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   TextField(
                     decoration: InputDecoration(
                       prefixIcon: Icon(Icons.person),
-                      hintText: user?.displayName ?? 'Username',
+                      hintText: displayName ?? 'Username',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.0),
                       ),
@@ -158,18 +170,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     decoration: InputDecoration(
                       prefixIcon: Icon(Icons.email),
                       hintText: email ?? 'Email',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                    ),
-                    readOnly: true,
-                  ),
-                  SizedBox(height: 10),
-                  TextField(
-                    obscureText: true,
-                    decoration: InputDecoration(
-                      prefixIcon: Icon(Icons.lock),
-                      hintText: 'Password',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.0),
                       ),
