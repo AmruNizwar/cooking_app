@@ -1,32 +1,34 @@
 from flask import Flask, request, jsonify
-import firebase_admin
-from firebase_admin import credentials, firestore
+from bot import get_response, BotData, load_bot_data, train_model
+import logging
+import os
 
 app = Flask(__name__)
 
-# Initialize Firestore
-cred = credentials.Certificate("../backend/cooking-app-68f57-firebase-adminsdk-og98k-d4cf8bd473.json")
-firebase_admin.initialize_app(cred)
-db = firestore.client()
+# Check if vocabulary.json exists; if not, train the model
+if not os.path.exists('vocabulary.json'):
+    print("Training model as vocabulary.json is missing...")
+    train_model()
+
+# Load the chatbot data (pre-trained model, intents, etc.)
+bot_data = load_bot_data()
+
+# Logging configuration
+logging.basicConfig(filename='logs/bot.log', level=logging.INFO)
 
 @app.route('/get_recipe', methods=['POST'])
 def get_recipe():
-    data = request.json
-    query = data.get("query", "").lower()
-    
-    # Query Firestore for recipes
-    recipes_ref = db.collection('recipes')
-    query_ref = recipes_ref.where('ingredients', 'array_contains', query).get()
-    
-    response = []
-    for doc in query_ref:
-        recipe = doc.to_dict()
-        response.append(recipe)
+    user_message = request.json.get('query', '')
+    logging.info(f"User query: {user_message}")
+    try:
+        response = get_response(user_message, bot_data)
+    except Exception as e:
+        logging.error(f"An error occurred: {e}")
+        response = "Sorry, an error occurred while processing your request."
+    logging.info(f"Bot response: {response}")
+    return jsonify({'response': response})
 
-    if not response:
-        response = "No recipes found."
-
-    return jsonify({"response": response})
-
-if __name__ == "__main__":
-    app.run(debug=True)
+# Call Main Function
+if __name__ == '__main__':
+    # Threaded option to enable multiple instances for multiple user access support
+    app.run(threaded=True, port=5000)

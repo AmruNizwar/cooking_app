@@ -17,26 +17,43 @@ class _ChatScreenState extends State<ChatScreen> {
       _controller.clear();
     });
 
-    // Send the message to the backend and get the response
-    final response = await http.post(
-      Uri.parse('http://localhost:5000/get_recipe'), // Use your server's URL
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(<String, String>{
-        'query': message,
-      }),
-    );
+    try {
+      final response = await http.post(
+        Uri.parse('http://10.0.2.2:5000/get_recipe'), // Use your server's IP address
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, String>{
+          'query': message,
+        }),
+      );
 
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      final reply = data['response'];
-      setState(() {
-        _messages.add({'message': reply, 'sender': 'bot'});
-      });
-    } else {
-      setState(() {
-        _messages.add({'message': 'Failed to connect to the server.', 'sender': 'bot'});
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        print('Response data: $data');
+        final reply = data['response'];
+        setState(() {
+          if (reply is List) {
+            reply.forEach((recipe) {
+              _messages.add({'message': recipe, 'sender': 'bot'}); // Display each recipe name
+            });
+          } else {
+            _messages.add({'message': reply, 'sender': 'bot'});
+          }
+        });
+      } else {
+        setState(() {
+          _messages.add(
+              {'message': 'Failed to connect to the server.', 'sender': 'bot'});
+        });
+      }
+    } catch (e) {
+      print('Error: $e');
+      setState(() { 
+        _messages.add({
+          'message': 'Error connecting to the server. Please try again later.',
+          'sender': 'bot'
+        });
       });
     }
   }

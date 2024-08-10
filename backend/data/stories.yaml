@@ -1,0 +1,4 @@
+- name: Recipe Suggestion Flow
+  steps:
+    - user: "I have {ingredient1} and {ingredient2}. What can I cook?"
+    - bot: "You can make {dish_name}."

@@ -1,0 +1,30 @@
+{
+    "flows": [
+        {
+            "intent": "get_recipe",
+            "steps": [
+                {
+                    "question": "What type of recipe are you looking for?",
+                    "expected_response": ["vegetarian", "non-vegetarian", "dessert"]
+                },
+                {
+                    "question": "Do you have any specific ingredients in mind?",
+                    "expected_response": ["chicken", "tofu", "chocolate", "none"]
+                },
+                {
+                    "question": "How many servings do you need?",
+                    "expected_response": ["1-2", "3-4", "5+"]
+                }
+            ]
+        },
+        {
+            "intent": "greeting",
+            "steps": [
+                {
+                    "question": "Hello! How can I assist you today?",
+                    "expected_response": ["get_recipe", "learn_more", "exit"]
+                }
+            ]
+        }
+    ]
+}
