@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:convert';
+
+final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
 class ChatScreen extends StatefulWidget {
   @override
@@ -19,12 +22,12 @@ class _ChatScreenState extends State<ChatScreen> {
 
     try {
       final response = await http.post(
-        Uri.parse('http://10.0.2.2:5000/get_recipe'), // Use your server's IP address
+        Uri.parse('http://10.0.2.2:5000/chat'), // Updated to the correct route
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
         body: jsonEncode(<String, String>{
-          'query': message,
+          'message': message, // Use 'message' as expected by Flask
         }),
       );
 
@@ -35,11 +38,21 @@ class _ChatScreenState extends State<ChatScreen> {
         setState(() {
           if (reply is List) {
             reply.forEach((recipe) {
-              _messages.add({'message': recipe, 'sender': 'bot'}); // Display each recipe name
+              _messages.add({
+                'message': recipe,
+                'sender': 'bot'
+              }); // Display each recipe name
             });
           } else {
             _messages.add({'message': reply, 'sender': 'bot'});
           }
+        });
+
+        // Save the conversation to Firestore
+        await _firestore.collection('chat_responses').add({
+          'user_message': message,
+          'bot_response': reply is List ? reply.join(", ") : reply,
+          'timestamp': FieldValue.serverTimestamp(),
         });
       } else {
         setState(() {
@@ -49,7 +62,7 @@ class _ChatScreenState extends State<ChatScreen> {
       }
     } catch (e) {
       print('Error: $e');
-      setState(() { 
+      setState(() {
         _messages.add({
           'message': 'Error connecting to the server. Please try again later.',
           'sender': 'bot'

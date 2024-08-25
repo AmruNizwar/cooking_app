@@ -1,0 +1,88 @@
+{
+    "intents": [
+      {
+        "tag": "recipe_query",
+        "patterns": [
+          "how to make *",
+          "recipe for *",
+          "show me how to prepare *",
+          "tell me how to make *"
+        ],
+        "responses": [],
+        "action": "handle_recipe_query"
+      },
+      {
+        "tag": "ingredient_query",
+        "patterns": [
+          "what are the ingredients for *",
+          "ingredients for *",
+          "what do I need to make *"
+        ],
+        "responses": [],
+        "action": "handle_ingredient_query"
+      },
+      {
+        "tag": "cooking_time_query",
+        "patterns": [
+          "how long does it take to cook *",
+          " *",
+          "how much time to cook *"
+        ],
+        "responses": [],
+        "action": "handle_cooking_time_query"
+      },
+      {
+        "tag": "nutritional_info_query",
+        "patterns": [
+          "what are the nutritional facts of *",
+          "nutritional information for *",
+          "calories in *",
+          "nutrition for *"
+        ],
+        "responses": [],
+        "action": "handle_nutritional_info_query"
+      },
+      {
+        "tag": "greeting",
+        "patterns": [
+          "hello",
+          "hi",
+          "hey",
+          "good day"
+        ],
+        "responses": [
+          "Hello! How can I assist you with your cooking today?",
+          "Hi there! What recipe are you looking for?"
+        ],
+        "action": ""
+      },
+      {
+        "tag": "goodbye",
+        "patterns": [
+          "bye",
+          "goodbye",
+          "see you",
+          "take care"
+        ],
+        "responses": [
+          "Goodbye! Enjoy your cooking!",
+          "See you next time!"
+        ],
+        "action": ""
+      },
+      {
+        "tag": "thankyou",
+        "patterns": [
+          "thanks",
+          "thank you",
+          "I appreciate it"
+        ],
+        "responses": [
+          "You're welcome!",
+          "Happy to help!"
+        ],
+        "action": ""
+      }
+    ]
+  }
+  
