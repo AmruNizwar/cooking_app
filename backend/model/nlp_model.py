@@ -1,36 +1,26 @@
 #model/nlp_model.py    file
-
+import re
+import random
 import os
+import pickle
 import sys
-import json
 import numpy as np
-from tensorflow.keras.preprocessing.sequence import pad_sequences
+import json
 from tensorflow.keras.models import load_model, Model
 from tensorflow.keras.layers import Input, Embedding, LSTM, Dense, Bidirectional
-import random
+from tensorflow.keras.callbacks import EarlyStopping
 import logging
-import re
-import pandas as pd
-from sklearn.feature_extraction.text import TfidfVectorizer
+# Add the backend directory to the system path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-from preprocess import prepare_data_for_training, clean_text
+from model.preprocess import prepare_data_for_training, clean_text, save_tokenizer, load_tokenizer
 
-import os
 
 class RecipeChatbot:
-    def __init__(self, csv_filepath, intents_path=None, model_path='model/recipe_model.h5', max_words=10000, max_sequence_length=100, embedding_dim=128):
-        # Set default intents_path based on the current file's directory
-        if intents_path is None:
-            intents_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'intents.json')
+    def __init__(self, csv_filepath, intents_path='intents.json', model_path='recipe_model.h5', tokenizer_path='tokenizer.json', max_words=10000, max_sequence_length=100, embedding_dim=128):
+        self.X, self.y, self.df, self.tokenizer, self.label_encoder = prepare_data_for_training(csv_filepath, max_words, max_sequence_length)
+        self.max_sequence_length = max_sequence_length
 
-        # Prepare data for training
-        self.X, self.df, self.tokenizer = prepare_data_for_training(csv_filepath, max_words, max_sequence_length)
-        self.last_query = None
-        self.last_indices = []
-        self.last_type = None  # Track the last query type
-
-        # Load or build the model
         if os.path.exists(model_path):
             self.model = load_model(model_path)
             logging.info(f"Loaded model from {model_path}.")
@@ -38,16 +28,10 @@ class RecipeChatbot:
             self.model = self.build_model(max_words, max_sequence_length, embedding_dim)
             logging.info("Model built successfully.")
 
-        # Load intents
         with open(intents_path, 'r') as file:
             self.intents = json.load(file)
+
         logging.info("RecipeChatbot initialized.")
-
-        # Initialize TF-IDF Vectorizer
-        self.vectorizer = TfidfVectorizer(max_features=max_words)
-        self.vectorizer.fit(self.df['CleanedName'])
-
-
 
     def build_model(self, max_words, max_sequence_length, embedding_dim):
         input_text = Input(shape=(max_sequence_length,))
@@ -72,9 +56,14 @@ class RecipeChatbot:
         loss, accuracy = self.model.evaluate(self.X, y, verbose=0)
         logging.info(f"Evaluation - Loss: {loss}, Accuracy: {accuracy}")
 
-    def save_model(self, model_path):
+    def save_model(self, model_path, tokenizer_path):
         self.model.save(model_path)
         logging.info(f"Model saved to {model_path}.")
+        
+        # Save the tokenizer as well
+        # Save the tokenizer as JSON using the save_tokenizer function
+        save_tokenizer(self.tokenizer, tokenizer_path)
+        logging.info(f"Tokenizer saved to {tokenizer_path}.")
 
     def generate_response(self, user_input, max_sequence_length=100):
         cleaned_input = clean_text(user_input.lower().strip())
@@ -246,15 +235,3 @@ class RecipeChatbot:
 
         return response
 
-
-
-
-if __name__ == "__main__":
-    # Initialize the chatbot with paths to CSV file, intents file, and model path
-    chatbot = RecipeChatbot(
-        csv_filepath='../data/recipes.csv',
-        intents_path='intents.json',
-        model_path='model/recipe_model.h5'
-    )
-    chatbot.train(epochs=100, batch_size=512)  # Adjust the epochs based on your need
-    chatbot.save_model('model/recipe_model.h5')

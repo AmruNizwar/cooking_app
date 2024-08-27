@@ -1,6 +1,41 @@
 import 'package:flutter/material.dart';
+import 'dart:convert'; // For JSON decoding
+import 'package:http/http.dart' as http; // For HTTP requests
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  List<dynamic> recipes = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchRecipes();
+  }
+
+  Future<void> fetchRecipes() async {
+    try {
+      final response = await http
+          .get(Uri.parse('http://192.168.1.4:5000/api/random_recipes?count=20'))
+          .timeout(Duration(seconds: 10));
+      if (response.statusCode == 200) {
+        setState(() {
+          recipes = json.decode(response.body);
+        });
+        print('Recipes fetched successfully: $recipes');
+      } else {
+        // Print more detailed error information
+        print('Failed to load recipes: ${response.statusCode}');
+        print('Response body: ${response.body}');
+      }
+    } catch (e) {
+      print('Error fetching recipes: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -84,14 +119,10 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: 30),
-                  _buildTrendingItem(context),
-                  _buildTrendingItem(context),
-                  _buildTrendingItem(context),
-                  _buildTrendingItem(context),
-                  _buildTrendingItem(context),
-                  _buildTrendingItem(context),
-                  _buildTrendingItem(context),
-                  _buildTrendingItem(context),
+                  if (recipes.isEmpty) Text('No recipes available.'),
+                  ...recipes
+                      .map((recipe) => _buildTrendingItem(context, recipe))
+                      .toList(),
                 ],
               ),
             ),
@@ -101,17 +132,36 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTrendingItem(BuildContext context) {
+  Widget _buildTrendingItem(BuildContext context, dynamic recipe) {
+    // Safely access the 'Images' field
+    String imagesField =
+        recipe['Images'] ?? ''; // Default to an empty string if null
+
+    // Check if the imagesField is not empty before attempting to split
+    List<String> imageUrls =
+        imagesField.isNotEmpty ? imagesField.split(',https://') : [];
+
+    // Safely access the first image URL or use a placeholder if not available
+    String firstImageUrl = imageUrls.isNotEmpty ? imageUrls[0].trim() : '';
+
     return Card(
       margin: EdgeInsets.only(bottom: 16.0),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15.0),
       ),
       child: ListTile(
-        leading: Image.asset('assets/hi.jpg', width: 50, height: 50),
-        title: Text('Salad'),
+        leading: Image.network(
+          firstImageUrl.isNotEmpty ? firstImageUrl : 'assets/placeholder.jpg',
+          width: 50,
+          height: 50,
+          errorBuilder: (context, error, stackTrace) {
+            print('Error loading image: $firstImageUrl'); // Debugging line
+            return Image.asset('assets/placeholder.jpg', width: 50, height: 50);
+          },
+        ),
+        title: Text(recipe['Name'] ?? 'Recipe Name'),
         subtitle: Text(
-          'Straining under the weight of a forgotten grocery list and a grumbling stomach...',
+          recipe['Description'] ?? 'No description available.',
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
         ),

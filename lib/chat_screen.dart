@@ -22,7 +22,8 @@ class _ChatScreenState extends State<ChatScreen> {
 
     try {
       final response = await http.post(
-        Uri.parse('http://10.0.2.2:5000/chat'), // Updated to the correct route
+        Uri.parse(
+            'http://192.168.1.4:5000/chat'), // Updated to the correct route
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },

@@ -3,7 +3,8 @@ import os
 import sys
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-
+import pandas as pd
+import numpy as np
 # Append the absolute path of the model directory
 sys.path.append(os.path.abspath('../model'))
 
@@ -13,12 +14,24 @@ import logging
 
 app = Flask(__name__)
 CORS(app)
-chatbot = RecipeChatbot(csv_filepath='../data/recipes.csv')
+chatbot = RecipeChatbot(csv_filepath='../data/recipes.csv', intents_path='../model/intents.json')
+
+# New route to fetch random recipes
+@app.route('/api/random_recipes', methods=['GET'])
+def get_random_recipes():
+    count = int(request.args.get('count', 20))  # Default to 20 recipes
+    df = pd.read_csv('../data/recipes.csv')
+    
+    # Replace NaN with None (which will convert to null in JSON)
+    df = df.replace({np.nan: None})
+    
+    recipes = df.sample(n=count).to_dict(orient='records')
+    return jsonify(recipes)
 
 @app.route('/train', methods=['POST'])
 def train():
     chatbot.train()
-    chatbot.save_model('models/model/recipe_model.h5')
+    chatbot.save_model('../model/recipe_model.h5')
     return jsonify({'message': 'Model trained successfully!'})
 
 @app.route('/chat', methods=['POST'])

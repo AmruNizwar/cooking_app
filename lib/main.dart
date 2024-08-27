@@ -37,7 +37,7 @@ class MyApp extends StatelessWidget {
         '/chat': (context) => ChatScreen(),
         '/history': (context) => HistoryScreen(),
         '/about': (context) => AboutScreen(),
-        '/success': (context) => SuccessScreen(),  // Add the SuccessScreen route
+        '/success': (context) => SuccessScreen(),
       },
     );
   }

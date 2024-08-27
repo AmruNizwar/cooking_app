@@ -1,140 +1,154 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 
 class HistoryScreen extends StatelessWidget {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   @override
   Widget build(BuildContext context) {
-    List<Map<String, String>> historyItems = [
-      {
-        'date': '04/1/2023',
-        'title': 'Salad',
-        'imagePath': 'assets/hi.jpg',
-        'description':
-            'Straining under the weight of a forgotten grocery list and a grumbling stomach, Sarah haphazardly threw open the pantry door, a whirlwind of spices, forgotten grains, and half-empty jars assaulting her senses. Sunlight, streaming through the window.'
-      },
-      {
-        'date': '04/1/2023',
-        'title': 'Salad',
-        'imagePath': 'assets/hi.jpg',
-        'description':
-            'Straining under the weight of a forgotten grocery list and a grumbling stomach, Sarah haphazardly threw open the pantry door, a whirlwind of spices, forgotten grains, and half-empty jars assaulting her senses. Sunlight, streaming through the window.'
-      },
-      {
-        'date': '14/1/2023',
-        'title': 'Salad',
-        'imagePath': 'assets/hi.jpg',
-        'description':
-            'Straining under the weight of a forgotten grocery list and a grumbling stomach, Sarah haphazardly threw open the pantry door, a whirlwind of spices, forgotten grains, and half-empty jars assaulting her senses. Sunlight, streaming through the window.'
-      },
-      {
-        'date': '',
-        'title': 'Salad',
-        'imagePath': 'assets/hi.jpg',
-        'description':
-            'Straining under the weight of a forgotten grocery list and a grumbling stomach, Sarah haphazardly threw open the pantry door, a whirlwind of spices, forgotten grains, and half-empty jars assaulting her senses. Sunlight, streaming through the window.'
-      },
-    ];
+    final DateTime now = DateTime.now();
+    final DateTime last24Hours = now.subtract(Duration(hours: 24));
 
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.orange[100],
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: <Widget>[
-            IconButton(
-              icon: const Icon(Icons.home, color: Colors.black),
-              onPressed: () {
-                Navigator.pushNamed(context, '/home');
-              },
-            ),
-            IconButton(
-              icon: Icon(Icons.history, color: Colors.black),
-              onPressed: () {
-                Navigator.pushNamed(context, '/history');
-              },
-            ),
-            IconButton(
-              icon: Icon(Icons.info, color: Colors.black),
-              onPressed: () {
-                Navigator.pushNamed(context, '/about');
-              },
-            ),
-            IconButton(
-              icon: Icon(Icons.person, color: Colors.black),
-              onPressed: () {
-                Navigator.pushNamed(context, '/profile');
-              },
-            ),
-          ],
-        ),
+        title: Text('History', style: TextStyle(color: Colors.black)),
+        centerTitle: true,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ListView.builder(
-          itemCount: historyItems.length,
-          itemBuilder: (context, index) {
-            return _buildHistoryItem(
-              context,
-              historyItems[index]['date']!,
-              historyItems[index]['title']!,
-              historyItems[index]['imagePath']!,
-              historyItems[index]['description']!,
-              index == historyItems.length - 1,
+      body: StreamBuilder<QuerySnapshot>(
+        stream: _firestore
+            .collection('chat_responses')
+            .where('timestamp', isGreaterThanOrEqualTo: last24Hours)
+            .orderBy('timestamp', descending: true)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          }
+
+          if (snapshot.hasError) {
+            return Center(child: Text('Error loading history.'));
+          }
+
+          final historyItems = snapshot.data?.docs ?? [];
+
+          if (historyItems.isEmpty) {
+            return Center(
+              child: Text(
+                'No conversations in the last 24 hours.',
+                style: TextStyle(fontSize: 18, color: Colors.grey),
+              ),
             );
-          },
-        ),
+          }
+
+          // Grouping messages by date
+          Map<String, List<DocumentSnapshot>> groupedHistory = {};
+          for (var doc in historyItems) {
+            final date = (doc['timestamp'] as Timestamp).toDate();
+            final dateString = DateFormat('dd/MM/yyyy').format(date);
+            if (!groupedHistory.containsKey(dateString)) {
+              groupedHistory[dateString] = [];
+            }
+            groupedHistory[dateString]!.add(doc);
+          }
+
+          return ListView.builder(
+            itemCount: groupedHistory.keys.length,
+            itemBuilder: (context, index) {
+              final date = groupedHistory.keys.elementAt(index);
+              final messages = groupedHistory[date]!;
+              final preview = messages.first['user_message'] ?? 'No Message';
+
+              return GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MessagesPage(
+                        date: date,
+                        messages: messages,
+                      ),
+                    ),
+                  );
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 8.0, horizontal: 16.0),
+                  child: Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                    ),
+                    elevation: 4,
+                    child: Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            date,
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                          SizedBox(height: 5),
+                          Text(
+                            preview,
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(fontSize: 14),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+          );
+        },
       ),
     );
   }
+}
 
-  Widget _buildHistoryItem(BuildContext context, String date, String title,
-      String imagePath, String description, bool isLast) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (!isLast)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: Text(
-              date,
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-          ),
-        Card(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15.0),
-          ),
-          child: Padding(
+class MessagesPage extends StatelessWidget {
+  final String date;
+  final List<DocumentSnapshot> messages;
+
+  MessagesPage({required this.date, required this.messages});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Messages from $date'),
+        backgroundColor: Colors.orange[100],
+      ),
+      body: ListView.builder(
+        itemCount: messages.length,
+        itemBuilder: (context, index) {
+          final message = messages[index];
+          final userMessage = message['user_message'] ?? 'No Message';
+          final botResponse = message['bot_response'] ?? 'No Response';
+
+          return Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Image.asset(imagePath, width: 50, height: 50),
-                SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-                      SizedBox(height: 5),
-                      Text(
-                        description,
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(fontSize: 14),
-                      ),
-                    ],
-                  ),
+                Text(
+                  'User: $userMessage',
+                  style: TextStyle(fontWeight: FontWeight.bold),
                 ),
+                SizedBox(height: 5),
+                Text('Bot: $botResponse'),
+                Divider(),
               ],
             ),
-          ),
-        ),
-      ],
+          );
+        },
+      ),
     );
   }
 }
