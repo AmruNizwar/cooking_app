@@ -41,6 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        automaticallyImplyLeading: false, // This line removes the back button
         elevation: 0,
         backgroundColor: Colors.orange[100],
         title: Row(

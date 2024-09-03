@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:convert';
+import 'package:flutter_tts/flutter_tts.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
+import 'package:permission_handler/permission_handler.dart';
 
 final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
@@ -14,6 +17,26 @@ class _ChatScreenState extends State<ChatScreen> {
   final List<Map<String, String>> _messages = [];
   final TextEditingController _controller = TextEditingController();
 
+  late FlutterTts _flutterTts;
+  late stt.SpeechToText _speech;
+  bool _isListening = false;
+  bool audioEnabled = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _requestPermission(); // Request microphone permission
+    _flutterTts = FlutterTts();
+    _speech = stt.SpeechToText();
+  }
+
+  void _requestPermission() async {
+    var status = await Permission.microphone.status;
+    if (!status.isGranted) {
+      await Permission.microphone.request();
+    }
+  }
+
   Future<void> _sendMessage(String message) async {
     setState(() {
       _messages.add({'message': message, 'sender': 'user'});
@@ -22,34 +45,32 @@ class _ChatScreenState extends State<ChatScreen> {
 
     try {
       final response = await http.post(
-        Uri.parse(
-            'http://192.168.1.4:5000/chat'), // Updated to the correct route
+        Uri.parse('http://192.168.1.4:5000/chat'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
         body: jsonEncode(<String, String>{
-          'message': message, // Use 'message' as expected by Flask
+          'message': message,
         }),
       );
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        print('Response data: $data');
         final reply = data['response'];
         setState(() {
           if (reply is List) {
             reply.forEach((recipe) {
-              _messages.add({
-                'message': recipe,
-                'sender': 'bot'
-              }); // Display each recipe name
+              _messages.add({'message': recipe, 'sender': 'bot'});
             });
           } else {
             _messages.add({'message': reply, 'sender': 'bot'});
           }
         });
 
-        // Save the conversation to Firestore
+        if (audioEnabled) {
+          _speak(reply is List ? reply.join(", ") : reply);
+        }
+
         await _firestore.collection('chat_responses').add({
           'user_message': message,
           'bot_response': reply is List ? reply.join(", ") : reply,
@@ -62,12 +83,61 @@ class _ChatScreenState extends State<ChatScreen> {
         });
       }
     } catch (e) {
-      print('Error: $e');
       setState(() {
         _messages.add({
           'message': 'Error connecting to the server. Please try again later.',
           'sender': 'bot'
         });
+      });
+    }
+  }
+
+  Future<void> _speak(String text) async {
+    await _flutterTts.setLanguage('en-US');
+    await _flutterTts.setPitch(1.0);
+    await _flutterTts.speak(text);
+  }
+
+  void _toggleListening() async {
+    if (!_isListening) {
+      bool available = await _speech.initialize(
+        onStatus: (val) => print('onStatus: $val'),
+        onError: (val) {
+          print('onError: $val');
+          setState(() {
+            _isListening = false;
+          });
+          if (val.errorMsg == 'error_speech_timeout') {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                  content:
+                      Text('Speech recognition timed out. Please try again.')),
+            );
+          }
+        },
+      );
+
+      if (available) {
+        setState(() => _isListening = true);
+        _speech.listen(
+          onResult: (val) {
+            setState(() {
+              _controller.text = val.recognizedWords;
+            });
+          },
+          listenFor: Duration(seconds: 120),
+          pauseFor: Duration(seconds: 10),
+          cancelOnError: true,
+          partialResults: true,
+        );
+      } else {
+        print("Speech recognition is not available");
+        setState(() => _isListening = false);
+      }
+    } else {
+      setState(() {
+        _isListening = false;
+        _speech.stop();
       });
     }
   }
@@ -95,6 +165,17 @@ class _ChatScreenState extends State<ChatScreen> {
             Navigator.pop(context);
           },
         ),
+        actions: [
+          IconButton(
+            icon: Icon(audioEnabled ? Icons.volume_up : Icons.volume_off,
+                color: Colors.black),
+            onPressed: () {
+              setState(() {
+                audioEnabled = !audioEnabled;
+              });
+            },
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -156,12 +237,6 @@ class _ChatScreenState extends State<ChatScreen> {
       padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
       child: Row(
         children: [
-          IconButton(
-            icon: Icon(Icons.add, color: Colors.black),
-            onPressed: () {
-              // Handle adding attachments
-            },
-          ),
           Expanded(
             child: TextField(
               controller: _controller,
@@ -180,10 +255,12 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           ),
           IconButton(
-            icon: Icon(Icons.mic, color: Colors.black),
-            onPressed: () {
-              // Handle sending voice message
-            },
+            icon: Icon(
+              Icons.mic,
+              color: _isListening ? Colors.red : Colors.black,
+              size: _isListening ? 36.0 : 24.0,
+            ),
+            onPressed: _toggleListening,
           ),
           IconButton(
             icon: Icon(Icons.send, color: Colors.black),
@@ -196,7 +273,3 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 }
-
-void main() => runApp(MaterialApp(
-      home: ChatScreen(),
-    ));

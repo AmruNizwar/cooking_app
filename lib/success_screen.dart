@@ -24,14 +24,14 @@ class _SuccessScreenState extends State<SuccessScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.orange[100],
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             const Icon(
               Icons.check_circle_outline,
-              color: Colors.green,
+              color: Colors.white,
               size: 100.0,
             ),
             const SizedBox(height: 20),

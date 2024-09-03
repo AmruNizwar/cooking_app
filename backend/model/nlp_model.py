@@ -44,7 +44,7 @@ class RecipeChatbot:
         logging.info("Model built successfully.")
         return model
 
-    def train(self, epochs=100, batch_size=512, validation_split=0.2):
+    def train(self, epochs=100, batch_size=32, validation_split=0.2):
         y = np.arange(self.X.shape[0])
         logging.info("Training started.")
         self.model.fit(self.X, y, epochs=epochs, batch_size=batch_size, validation_split=validation_split)

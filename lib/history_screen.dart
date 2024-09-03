@@ -7,9 +7,6 @@ class HistoryScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final DateTime now = DateTime.now();
-    final DateTime last24Hours = now.subtract(Duration(hours: 24));
-
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -20,8 +17,7 @@ class HistoryScreen extends StatelessWidget {
       body: StreamBuilder<QuerySnapshot>(
         stream: _firestore
             .collection('chat_responses')
-            .where('timestamp', isGreaterThanOrEqualTo: last24Hours)
-            .orderBy('timestamp', descending: true)
+            .orderBy('timestamp', descending: true) // Ordering messages by time
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -37,7 +33,7 @@ class HistoryScreen extends StatelessWidget {
           if (historyItems.isEmpty) {
             return Center(
               child: Text(
-                'No conversations in the last 24 hours.',
+                'No conversations found.',
                 style: TextStyle(fontSize: 18, color: Colors.grey),
               ),
             );

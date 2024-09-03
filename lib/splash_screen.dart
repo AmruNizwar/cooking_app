@@ -14,7 +14,8 @@ class SplashScreen extends StatelessWidget {
       body: Container(
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/hi1.png'), // Ensure this path is correct
+            image: AssetImage(
+                'assets/loadscreen.png'), // Ensure this path is correct
             fit: BoxFit.cover, // Make the image cover the whole screen
           ),
         ),
