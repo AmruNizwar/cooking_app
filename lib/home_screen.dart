@@ -19,7 +19,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> fetchRecipes() async {
     try {
       final response = await http
-          .get(Uri.parse('http://192.168.1.4:5000/api/random_recipes?count=20'))
+          .get(Uri.parse('http://192.168.1.4:5000/api/random_recipes?count=10'))
           .timeout(Duration(seconds: 10));
       if (response.statusCode == 200) {
         setState(() {
@@ -80,25 +80,67 @@ class _HomeScreenState extends State<HomeScreen> {
             SizedBox(height: 100),
             Container(
               margin: EdgeInsets.symmetric(horizontal: 20.0),
+              decoration: BoxDecoration(
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.5), // Soft shadow color
+                    spreadRadius: 2,
+                    blurRadius: 8, // Blurry shadow for a smoother effect
+                    offset:
+                        Offset(0, 3), // Shadow position (slight vertical drop)
+                  ),
+                ],
+              ),
               child: SizedBox(
                 width: double.infinity,
-                child: ElevatedButton.icon(
+                child: ElevatedButton(
                   onPressed: () {
                     Navigator.pushNamed(context, '/chat');
                   },
-                  icon: Icon(Icons.chat_bubble, color: Colors.black),
-                  label: Text(
-                    'COME CHAT WITH ME',
-                    style: TextStyle(color: Colors.black),
-                  ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange[100],
-                    padding: EdgeInsets.symmetric(vertical: 16.0),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(
+                          15.0), // Same soft rounded corners
+                    ),
+                    padding:
+                        EdgeInsets.symmetric(vertical: 14.0, horizontal: 20.0),
+                    backgroundColor: Colors.orange[100], // Updated button color
+                    elevation:
+                        0, // No built-in shadow, since we are using custom shadow
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment
+                        .spaceBetween, // Spreads content across the button width
+                    children: [
+                      // Avatar on the left side
+                      CircleAvatar(
+                        backgroundImage: AssetImage(
+                            'assets/icon.png'), // Replace with your avatar image path
+                        radius: 20, // Larger avatar
+                      ),
+
+                      // Button label text at the center
+                      Text(
+                        'Let\'s Chat',
+                        style: TextStyle(
+                          color: Colors
+                              .black, // Contrast text color for readability on light background
+                          fontWeight: FontWeight
+                              .w600, // Medium weight for balanced text
+                          fontSize: 18, // Bigger text for good readability
+                        ),
+                      ),
+
+                      // Chat icon on the right side
+                      Icon(Icons.chat_bubble_rounded,
+                          color: Colors.black,
+                          size: 22), // Black icon to match text
+                    ],
                   ),
                 ),
               ),
             ),
-            SizedBox(height: 30),
+            SizedBox(height: 100),
             Container(
               width: double.infinity,
               padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -166,7 +208,114 @@ class _HomeScreenState extends State<HomeScreen> {
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
         ),
+        onTap: () {
+          _showRecipeDetailsDialog(context, recipe);
+        },
       ),
+    );
+  }
+
+  void _showRecipeDetailsDialog(BuildContext context, dynamic recipe) {
+    // Safely access fields from the recipe
+    String recipeName = recipe['Name'] ?? 'Recipe Name';
+    String totalTime = recipe['TotalTime'] ?? 'Not available';
+
+    // Check if ingredients are a List or a String
+    String ingredients = recipe['RecipeIngredientParts'] is List
+        ? recipe['RecipeIngredientParts'].join(', ')
+        : recipe['RecipeIngredientParts'] ?? 'Ingredients not available';
+
+    // Replace commas with newline characters and add space after "Ingredients"
+    ingredients = ingredients.replaceAll(', ', '\n');
+
+    String imagesField = recipe['Images'] ?? '';
+    List<String> imageUrls =
+        imagesField.isNotEmpty ? imagesField.split(',https://') : [];
+    String firstImageUrl = imageUrls.isNotEmpty ? imageUrls[0].trim() : '';
+
+    // Display dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+          ),
+          title: Text(recipeName),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              if (firstImageUrl.isNotEmpty)
+                Image.network(
+                  firstImageUrl,
+                  width: 100,
+                  height: 100,
+                  errorBuilder: (context, error, stackTrace) {
+                    print('Error loading image: $firstImageUrl');
+                    return Image.asset('assets/placeholder.jpg',
+                        width: 100, height: 100);
+                  },
+                ),
+              SizedBox(height: 16),
+
+              // Highlight "Total Time"
+              RichText(
+                text: TextSpan(
+                  text: 'Total Time: ',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors
+                        .black, // Ensure it matches the dialog's text color
+                  ),
+                  children: <TextSpan>[
+                    TextSpan(
+                      text: totalTime,
+                      style: TextStyle(fontWeight: FontWeight.normal),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 16),
+
+              // Highlight "Ingredients"
+              RichText(
+                text: TextSpan(
+                  text: 'Ingredients:\n\n', // Add space after "Ingredients"
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                  children: <TextSpan>[
+                    TextSpan(
+                      text: ingredients,
+                      style: TextStyle(fontWeight: FontWeight.normal),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            // Custom styled button
+            TextButton(
+              style: TextButton.styleFrom(
+                backgroundColor: Colors.orange[100],
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+              ),
+              child: Text(
+                'Close',
+                style: TextStyle(
+                    color: Colors.black), // Text color inside the button
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }

@@ -31,7 +31,6 @@ class _SuccessScreenState extends State<SuccessScreen> {
           children: <Widget>[
             const Icon(
               Icons.check_circle_outline,
-              color: Colors.white,
               size: 100.0,
             ),
             const SizedBox(height: 20),
