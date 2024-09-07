@@ -79,7 +79,7 @@ class LoginScreen extends StatelessWidget {
                           final password = passwordController.text.trim();
 
                           try {
-                            // Sign in with email and password
+
                             UserCredential userCredential = await FirebaseAuth
                                 .instance
                                 .signInWithEmailAndPassword(
@@ -94,16 +94,16 @@ class LoginScreen extends StatelessWidget {
                                 .doc(userCredential.user?.uid)
                                 .get();
                             if (userDoc.exists) {
-                              // Navigate to the success screen
+                              
                               Navigator.pushNamed(context, '/success');
                             } else {
                               print('User data not found in Firestore');
-                              // Optionally, handle case where user data isn't found
+                              
                             }
                           } catch (e) {
-                            // Handle errors, e.g., user not found, wrong password
+                            
                             print('Error: $e');
-                            // Show an error message to the user (optional)
+                            
                             showDialog(
                               context: context,
                               builder: (context) => AlertDialog(

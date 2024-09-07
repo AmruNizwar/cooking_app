@@ -8,7 +8,7 @@ import 'profile_screen.dart';
 import 'chat_screen.dart';
 import 'history_screen.dart';
 import 'about_screen.dart';
-import 'success_screen.dart'; // Import the SuccessScreen
+import 'success_screen.dart'; 
 import 'splash_screen.dart';
 
 void main() async {
@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.orange,
       ),
-      debugShowCheckedModeBanner: false, // Add this line
+      debugShowCheckedModeBanner: false, 
       initialRoute: '/',
       routes: {
         '/': (context) => SplashScreen(),

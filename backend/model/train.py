@@ -14,7 +14,7 @@ intents_path = 'model/intents.json'
 chatbot = RecipeChatbot(csv_filepath, intents_path, model_path)
 
 # Train the model
-chatbot.train(epochs=100, batch_size=32)  # Adjust epochs and batch_size as needed
+chatbot.train(epochs=100, batch_size=32)  
 
 # Save the trained model and tokenizer
 chatbot.save_model(model_path, tokenizer_path)

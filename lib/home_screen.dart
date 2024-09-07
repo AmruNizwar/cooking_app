@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:convert'; // For JSON decoding
-import 'package:http/http.dart' as http; // For HTTP requests
+import 'package:http/http.dart' as http; 
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -83,11 +83,11 @@ class _HomeScreenState extends State<HomeScreen> {
               decoration: BoxDecoration(
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.grey.withOpacity(0.5), // Soft shadow color
+                    color: Colors.grey.withOpacity(0.5), 
                     spreadRadius: 2,
-                    blurRadius: 8, // Blurry shadow for a smoother effect
+                    blurRadius: 8, 
                     offset:
-                        Offset(0, 3), // Shadow position (slight vertical drop)
+                        Offset(0, 3), 
                   ),
                 ],
               ),
@@ -100,41 +100,40 @@ class _HomeScreenState extends State<HomeScreen> {
                   style: ElevatedButton.styleFrom(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(
-                          15.0), // Same soft rounded corners
+                          15.0), 
                     ),
                     padding:
                         EdgeInsets.symmetric(vertical: 14.0, horizontal: 20.0),
-                    backgroundColor: Colors.orange[100], // Updated button color
+                    backgroundColor: Colors.orange[100], 
                     elevation:
-                        0, // No built-in shadow, since we are using custom shadow
+                        0, 
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment
-                        .spaceBetween, // Spreads content across the button width
+                        .spaceBetween, 
                     children: [
-                      // Avatar on the left side
+
                       CircleAvatar(
                         backgroundImage: AssetImage(
-                            'assets/icon.png'), // Replace with your avatar image path
-                        radius: 20, // Larger avatar
+                            'assets/icon.png'),
+                        radius: 20,
                       ),
 
-                      // Button label text at the center
                       Text(
                         'Let\'s Chat',
                         style: TextStyle(
                           color: Colors
-                              .black, // Contrast text color for readability on light background
+                              .black, 
                           fontWeight: FontWeight
-                              .w600, // Medium weight for balanced text
-                          fontSize: 18, // Bigger text for good readability
+                              .w600, 
+                          fontSize: 18,
                         ),
                       ),
 
-                      // Chat icon on the right side
+
                       Icon(Icons.chat_bubble_rounded,
                           color: Colors.black,
-                          size: 22), // Black icon to match text
+                          size: 22), 
                     ],
                   ),
                 ),
@@ -176,15 +175,15 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildTrendingItem(BuildContext context, dynamic recipe) {
-    // Safely access the 'Images' field
-    String imagesField =
-        recipe['Images'] ?? ''; // Default to an empty string if null
 
-    // Check if the imagesField is not empty before attempting to split
+    String imagesField =
+        recipe['Images'] ?? ''; 
+
+    // Check if the images is not empty
     List<String> imageUrls =
         imagesField.isNotEmpty ? imagesField.split(',https://') : [];
 
-    // Safely access the first image URL or use a placeholder if not available
+    //  take the first image URL or use a placeholder if not available
     String firstImageUrl = imageUrls.isNotEmpty ? imageUrls[0].trim() : '';
 
     return Card(
@@ -265,7 +264,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: Colors
-                        .black, // Ensure it matches the dialog's text color
+                        .black, 
                   ),
                   children: <TextSpan>[
                     TextSpan(
@@ -277,10 +276,10 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               SizedBox(height: 16),
 
-              // Highlight "Ingredients"
+              // Highlight Ingredient
               RichText(
                 text: TextSpan(
-                  text: 'Ingredients:\n\n', // Add space after "Ingredients"
+                  text: 'Ingredients:\n\n', 
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: Colors.black,
@@ -296,7 +295,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
           actions: <Widget>[
-            // Custom styled button
+
             TextButton(
               style: TextButton.styleFrom(
                 backgroundColor: Colors.orange[100],
@@ -307,7 +306,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Text(
                 'Close',
                 style: TextStyle(
-                    color: Colors.black), // Text color inside the button
+                    color: Colors.black), 
               ),
               onPressed: () {
                 Navigator.of(context).pop();

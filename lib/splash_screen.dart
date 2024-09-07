@@ -4,7 +4,7 @@ import 'dart:async';
 class SplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    // Start a timer to navigate to the login screen after 3 seconds
+
     Timer(Duration(seconds: 3), () {
       Navigator.pushReplacementNamed(context, '/login');
     });
@@ -15,8 +15,8 @@ class SplashScreen extends StatelessWidget {
         decoration: BoxDecoration(
           image: DecorationImage(
             image: AssetImage(
-                'assets/loadscreen.png'), // Ensure this path is correct
-            fit: BoxFit.cover, // Make the image cover the whole screen
+                'assets/loadscreen.png'), 
+            fit: BoxFit.cover, 
           ),
         ),
       ),

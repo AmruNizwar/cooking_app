@@ -10,7 +10,6 @@ from tensorflow.keras.models import load_model, Model
 from tensorflow.keras.layers import Input, Embedding, LSTM, Dense, Bidirectional
 from tensorflow.keras.callbacks import EarlyStopping
 import logging
-# Add the backend directory to the system path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 
 from model.preprocess import prepare_data_for_training, clean_text, save_tokenizer, load_tokenizer
@@ -60,8 +59,7 @@ class RecipeChatbot:
         self.model.save(model_path)
         logging.info(f"Model saved to {model_path}.")
         
-        # Save the tokenizer as well
-        # Save the tokenizer as JSON using the save_tokenizer function
+        # Save the tokenizer 
         save_tokenizer(self.tokenizer, tokenizer_path)
         logging.info(f"Tokenizer saved to {tokenizer_path}.")
 
@@ -72,6 +70,15 @@ class RecipeChatbot:
         if cleaned_input == 'more':
             return self.handle_more_options()
 
+        # Step 1: Check if the user input matches any recipe name
+        matched_recipes = self.df[self.df['CleanedName'].str.contains(cleaned_input, case=False, na=False)]
+        if not matched_recipes.empty:
+            if len(matched_recipes) > 1:
+                return self.handle_multiple_options(matched_recipes, "recipe_name")
+            else:
+                return self.display_recipe_details(matched_recipes.iloc[0])
+
+        # Step 2: Fallback to intent-based handling
         for intent in self.intents['intents']:
             # Match the user input with the patterns defined in each intent
             for pattern in intent['patterns']:
@@ -82,12 +89,13 @@ class RecipeChatbot:
                         if response_function:
                             query = re.sub("|".join([re.escape(p.replace("*", "")) for p in intent['patterns']]), '', cleaned_input).strip()
                             return response_function(query)
-                    # If no action is defined, return a random response
+
                     if intent['responses']:
                         return random.choice(intent['responses'])
 
-        # Default response if no matching pattern is found
+        # if no matching pattern is found
         return "I'm not sure how to help with that. Could you ask your question in a different way?"
+
 
     def handle_recipe_query(self, recipe_name):
         return self.search_by_recipe_name(recipe_name)
@@ -101,8 +109,8 @@ class RecipeChatbot:
     def handle_nutritional_info_query(self, recipe_name):
         return self.search_by_nutritional_info(recipe_name)
 
-    # New methods added below
 
+    # methods added below
     def search_by_ingredient(self, ingredients):
         ingredients_list = [ingredient.strip().lower() for ingredient in ingredients.split(',')]
         query = '(?=.*' + ')(?=.*'.join(ingredients_list) + ')'

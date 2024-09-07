@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'EditProfileScreen.dart'; // Import the new screen
+import 'EditProfileScreen.dart'; 
 
 class ProfileScreen extends StatefulWidget {
   @override
@@ -99,7 +99,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 spreadRadius: 5,
                                 blurRadius: 7,
                                 offset:
-                                    Offset(0, 3), // changes position of shadow
+                                    Offset(0, 3), 
                               ),
                             ],
                           ),
@@ -122,7 +122,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             SizedBox(
                 height:
-                    40), // This ensures the button is positioned below the avatar
+                    40), 
             TextButton(
               onPressed: () {
                 Navigator.push(
@@ -130,7 +130,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   MaterialPageRoute(
                       builder: (context) => EditProfileScreen(
                             onProfileUpdated:
-                                _loadUserData, // Callback to refresh data
+                                _loadUserData, 
                           )),
                 );
               },

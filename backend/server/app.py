@@ -19,16 +19,15 @@ chatbot = RecipeChatbot(csv_filepath='../data/recipes.csv', intents_path='../mod
 # New route to fetch random recipes
 @app.route('/api/random_recipes', methods=['GET'])
 def get_random_recipes():
-    count = int(request.args.get('count', 10))  # Default to 10 recipes
+    count = int(request.args.get('count', 10))  
     df = pd.read_csv('../data/recipes.csv')
 
-    # Replace NaN with None (which will convert to null in JSON)
+    # Replace NaN with None 
     df = df.replace({np.nan: None})
 
-    # Filter out recipes where 'Images' is None or does not start with 'https://'
+    
     df = df[df['Images'].notna() & df['Images'].str.startswith('https://', na=False)]
 
-    # Randomly sample the recipes
     recipes = df.sample(n=count).to_dict(orient='records')
 
     return jsonify(recipes)
@@ -39,6 +38,7 @@ def train():
     chatbot.save_model('../model/recipe_model.h5')
     return jsonify({'message': 'Model trained successfully!'})
 
+# chat with chatbot
 @app.route('/chat', methods=['POST'])
 def chat():
     user_input = request.json.get('message')

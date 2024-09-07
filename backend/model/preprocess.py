@@ -27,7 +27,6 @@ def prepare_data_for_training(csv_filepath, max_words=10000, max_sequence_length
     y = None
     label_encoder = None
 
-    # Assuming a labeled dataset with 'Intent' column
     if 'Intent' in df.columns:
         label_encoder = LabelEncoder()
         y = label_encoder.fit_transform(df['Intent'])
